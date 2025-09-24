@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professional Resume Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Header -->
+  <header class="bg-blue-700 shadow-lg p-6 text-white text-center">
+    <h1 class="text-3xl font-bold">Professional Resume Builder</h1>
+    <p class="text-lg">Create a stunning CV instantly</p>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-lg">
+
+    <!-- Form Section -->
+    <form id="resumeForm" class="space-y-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Personal Information</h2>
+      
+      <!-- Personal Info -->
+      <div class="grid grid-cols-2 gap-4">
+        <input type="text" id="fullName" placeholder="Full Name" required class="p-3 border rounded-md">
+        <input type="email" id="email" placeholder="Email" required class="p-3 border rounded-md">
+        <input type="text" id="phone" placeholder="Phone" required class="p-3 border rounded-md">
+        <input type="text" id="location" placeholder="Location" required class="p-3 border rounded-md">
+      </div>
+
+      <!-- Professional Summary -->
+      <textarea id="summary" placeholder="Professional Summary" rows="3" class="w-full p-3 border rounded-md"></textarea>
+
+      <!-- Education -->
+      <h2 class="text-xl font-bold text-gray-700">Education</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <input type="text" id="degree" placeholder="Degree" class="p-3 border rounded-md">
+        <input type="text" id="graduationYear" placeholder="Graduation Year" class="p-3 border rounded-md">
+      </div>
+
+      <!-- Skills -->
+      <h2 class="text-xl font-bold text-gray-700">Skills</h2>
+      <textarea id="skills" placeholder="Add comma-separated skills" rows="3" class="w-full p-3 border rounded-md"></textarea>
+
+      <!-- Achievements -->
+      <h2 class="text-xl font-bold text-gray-700">Achievements / Highlights</h2>
+      <textarea id="achievements" placeholder="Your achievements" rows="3" class="w-full p-3 border rounded-md"></textarea>
+
+      <!-- Projects -->
+      <h2 class="text-xl font-bold text-gray-700">Projects</h2>
+      <textarea id="projects" placeholder="Project description" rows="3" class="w-full p-3 border rounded-md"></textarea>
+
+      <!-- Work Experience -->
+      <h2 class="text-xl font-bold text-gray-700">Work Experience</h2>
+      <textarea id="workExperience" placeholder="Job role, company, and work description" rows="3" class="w-full p-3 border rounded-md"></textarea>
+
+      <!-- Submit Button -->
+      <button type="button" onclick="generateResume()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md w-full">
+        Generate Resume
+      </button>
+    </form>
+  </main>
+
+  <!-- Resume Preview -->
+  <section id="resumePreview" class="max-w-5xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-lg hidden">
+    <div id="resumeContent" class="p-4">
+      <!-- Dynamic resume content will appear here -->
+    </div>
+    <button onclick="downloadPDF()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md w-full mt-6">
+      Download Resume as PDF
+    </button>
+  </section>
+
+  <!-- JavaScript -->
+  <script>
+    function generateResume() {
+      // Collect values from form
+      const fullName = document.getElementById("fullName").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const location = document.getElementById("location").value;
+      const summary = document.getElementById("summary").value;
+      const degree = document.getElementById("degree").value;
+      const graduationYear = document.getElementById("graduationYear").value;
+      const skills = document.getElementById("skills").value.split(",");
+      const achievements = document.getElementById("achievements").value.split(",");
+      const projects = document.getElementById("projects").value.split(",");
+      const workExperience = document.getElementById("workExperience").value;
+
+      // Resume Template
+      const resumeHTML = `
+        <div class="text-center border-b pb-4 mb-4">
+          <h1 class="text-3xl font-bold">${fullName}</h1>
+          <p class="text-gray-600">${email} | ${phone} | ${location}</p>
+        </div>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Professional Summary</h2>
+        <p class="text-gray-700">${summary}</p>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Education</h2>
+        <p class="text-gray-700">${degree} (${graduationYear})</p>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Skills</h2>
+        <ul class="list-disc list-inside text-gray-700">
+          ${skills.map(skill => `<li>${skill.trim()}</li>`).join("")}
+        </ul>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Achievements</h2>
+        <ul class="list-disc list-inside text-gray-700">
+          ${achievements.map(a => `<li>${a.trim()}</li>`).join("")}
+        </ul>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Projects</h2>
+        <ul class="list-disc list-inside text-gray-700">
+          ${projects.map(p => `<li>${p.trim()}</li>`).join("")}
+        </ul>
+
+        <h2 class="text-xl font-bold mt-4 mb-2">Work Experience</h2>
+        <p class="text-gray-700">${workExperience}</p>
+      `;
+
+      // Show Resume Preview
+      document.getElementById("resumeContent").innerHTML = resumeHTML;
+      document.getElementById("resumePreview").classList.remove("hidden");
+    }
+
+    function downloadPDF() {
+      const element = document.getElementById("resumeContent");
+      const options = {
+        margin: 0.5,
+        filename: "My_Resume.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
+      html2pdf().set(options).from(element).save();
+    }
+  </script>
+
+</body>
+</html>
